@@ -18,14 +18,14 @@ The following diagram shows a representation of the flow of the requests:
 
 ```mermaid
 graph TD;
-    A[Requests to http://envoy:8081/] -->|Forwards| B[http://js-api-app:4400/]
+    A[Requests to envoy:8081] -->|Forwards| B[js-api-app:4400]
     B -->|Rate limit: 2 requests/second| C[Responses to Clients]
     A -->|429 Too Many Requests| D[Rate Limit Exceeded]
     
-    style A fill:#f9f,stroke:#333,stroke-width:2px;
-    style B fill:#bbf,stroke:#333,stroke-width:2px;
-    style C fill:#bbf,stroke:#333,stroke-width:2px;
-    style D fill:#f99,stroke:#333,stroke-width:2px;
+    style A fill:#f9f,color:#001,stroke:#333,stroke-width:2px;
+    style B fill:#bbf,color:#001,stroke:#333,stroke-width:2px;
+    style C fill:#bbf,color:#001,stroke:#333,stroke-width:2px;
+    style D fill:#f99,color:#001,stroke:#333,stroke-width:2px;
 ```
 
 ## How to run it
