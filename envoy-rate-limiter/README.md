@@ -18,7 +18,7 @@ The following diagram shows a representation of the flow of the requests:
 
 ```mermaid
 graph TD;
-    A[Requests to envoy:8081] -->|Forwards| B[js-api-app:4400]
+    A[Requests to envoy:8081] -->|Forwards| B[Forwarded to js-api-app:4400/api]
     B -->|Rate limit: 2 requests/second| C[Responses to Clients]
     A -->|429 Too Many Requests| D[Rate Limit Exceeded]
     
