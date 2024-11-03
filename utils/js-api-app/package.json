@@ -1,0 +1,14 @@
+
+{
+  "name": "js-api-app",
+  "version": "1.0.0",
+  "description": "Simple JavaScript API application",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

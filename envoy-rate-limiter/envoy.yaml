@@ -1,0 +1,66 @@
+static_resources:
+  listeners:
+    - name: listener
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8081
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: host_service
+                      domains: ["*"]
+                      routes:
+                        - match:
+                            prefix: "/"
+                          route:
+                            cluster: js-api-app-cluster
+                            prefix_rewrite: "/api"
+                          typed_per_filter_config:
+                            envoy.filters.http.local_ratelimit:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+                              stat_prefix: http_local_rate_limiter
+                              token_bucket:
+                                max_tokens: 2
+                                tokens_per_fill: 2
+                                fill_interval: 1s
+                              filter_enabled:
+                                runtime_key: local_rate_limit_enabled
+                                default_value:
+                                  numerator: 100
+                                  denominator: HUNDRED
+                              filter_enforced:
+                                runtime_key: local_rate_limit_enforced
+                                default_value:
+                                  numerator: 100
+                                  denominator: HUNDRED
+
+                http_filters:
+                  - name: envoy.filters.http.local_ratelimit
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+                      stat_prefix: http_local_rate_limiter
+
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+  clusters:
+    - name: js-api-app-cluster
+      connect_timeout: 0.25s
+      type: strict_dns
+      load_assignment:
+        cluster_name: js-api-app-cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: js-api-app
+                      port_value: 3000

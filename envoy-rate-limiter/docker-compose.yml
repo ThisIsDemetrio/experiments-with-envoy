@@ -1,0 +1,39 @@
+services:
+  js-api-app:
+    image: js-api-app
+    build: 
+      context: ../utils/js-api-app
+      dockerfile: Dockerfile
+    ports:
+      - "4400:3000"
+    container_name: js-api-app
+    environment:
+    - APP_NAME=App01
+  envoy:
+    image: envoyproxy/envoy:v1.30.0
+    container_name: envoy
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    ports:
+      - "8081:8081"
+    depends_on:
+      - js-api-app
+  k6-test:
+    image: grafana/k6:0.54.0
+    container_name: k6_test
+    deploy:
+      resources:
+        limits:
+          memory: 512Mb
+          cpus: "1"
+    volumes:
+      - ./k6.js:/app/k6.js
+    command: [ 
+      "run", 
+      "--out",
+      "json=k6-results.json",
+      "/app/k6.js",
+    ]
+    depends_on:
+      - js-api-app
+      - envoy
