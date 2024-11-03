@@ -22,31 +22,7 @@ static_resources:
                           route:
                             cluster: js_api_app_cluster
                             prefix_rewrite: "/api"
-                          typed_per_filter_config:
-                            envoy.filters.http.local_ratelimit:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
-                              stat_prefix: http_local_rate_limiter
-                              token_bucket:
-                                max_tokens: 2
-                                tokens_per_fill: 2
-                                fill_interval: 1s
-                              filter_enabled:
-                                runtime_key: local_rate_limit_enabled
-                                default_value:
-                                  numerator: 100
-                                  denominator: HUNDRED
-                              filter_enforced:
-                                runtime_key: local_rate_limit_enforced
-                                default_value:
-                                  numerator: 100
-                                  denominator: HUNDRED
-
                 http_filters:
-                  - name: envoy.filters.http.local_ratelimit
-                    typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
-                      stat_prefix: http_local_rate_limiter
-
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
@@ -55,6 +31,7 @@ static_resources:
     - name: js_api_app_cluster
       connect_timeout: 0.25s
       type: strict_dns
+      lb_policy: round_robin
       load_assignment:
         cluster_name: js_api_app_cluster
         endpoints:
@@ -62,5 +39,15 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: js-api-app
+                      address: js-api-app-1
+                      port_value: 3000
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: js-api-app-2
+                      port_value: 3000
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: js-api-app-3
                       port_value: 3000
